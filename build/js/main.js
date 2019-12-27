@@ -1,6 +1,7 @@
 
 let canvasRects = document.querySelector('#canvas').getBoundingClientRect();
 const STORE = {
+	quantity: 0,
 	colors: ['red','orange','yellow','white','black','green','pink','purple','#d59be8','lime'],
 	canvasSize: {
 		width: canvasRects.width,
@@ -46,8 +47,7 @@ class Ball {
 }
 
 class Toy {
-	constructor(quantity = 1) {
-		this.quantity = quantity - 1;
+	constructor() {
 		this.fps = 40;
 		this.DOMelem = document.querySelector('#canvas');
 		this.canvas = this.DOMelem.getContext('2d');
@@ -55,9 +55,20 @@ class Toy {
 		this.gradient.addColorStop(0, "skyblue");
 		this.gradient.addColorStop(1, "darkblue");
 
-		for (let i = 0; i <= this.quantity; i++) {
+		for (let i = 0; i <= STORE.quantity; i++) {
 			STORE.balls[i] = new Ball(i);
 		}
+
+		document.addEventListener('keydown', (event) => {
+			if (event.key === 'ArrowUp') {
+				STORE.quantity++;
+				this.fillUpStore();
+			}
+			else if (event.key === 'ArrowDown' && STORE.quantity > 0) {
+				this.deleteLastBall();
+				STORE.quantity--;
+			}
+		})
 
 		this.rewriteCanvas();
 	}
@@ -70,7 +81,7 @@ class Toy {
 		this.canvas.fillStyle = this.gradient;
 		this.canvas.fillRect(0, 0, 500, 500);
 
-		 for (let i = 0; i <= this.quantity; i++) {
+		 for (let i = 0; i <= STORE.quantity; i++) {
 		 	this.canvas.beginPath();
 			this.canvas.arc(STORE.balls[i].posX, STORE.balls[i].posY, STORE.balls[i].radius, 0, 2 * Math.PI);
 			this.canvas.fillStyle = STORE.balls[i].color;
@@ -79,6 +90,14 @@ class Toy {
 		 	STORE.balls[i].changeData();
 		 }
 	}
+
+	fillUpStore() {
+		STORE.balls[STORE.quantity] = new Ball(STORE.quantity);
+	}
+
+	deleteLastBall() {
+		delete STORE.balls[STORE.quantity];
+	}
 }
 
-new Toy(25);
+new Toy();
